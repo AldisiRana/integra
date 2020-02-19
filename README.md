@@ -4,7 +4,7 @@
 ## Installation
 ``integra`` can be installed on python3+ from the latest code on [GitHub](https://github.com/AldisiRana/integra) with:
 
-    $ pip install git+https://github.com/seffnet/seffnet.git
+    $ pip install git+https://github.com/AldisiRana/integra.git
 
 ## Usage
 There are currently 2 functions that can be called in this package.
