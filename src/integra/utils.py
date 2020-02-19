@@ -4,15 +4,15 @@
 
 import os
 
-from pybiomart import Dataset
 import pandas as pd
+from pybiomart import Dataset
 from tqdm import tqdm
 
 
 def merge_matrices(
-        *,
-        directory,
-        output_path,
+    *,
+    directory,
+    output_path,
 ):
     full_data = pd.DataFrame(data=None, columns=['patient_id'])
     for filename in tqdm(os.listdir(directory), desc="merging matrices"):
@@ -25,10 +25,10 @@ def merge_matrices(
 
 
 def normalize_gene_len(
-        *,
-        genes_lengths_file=None,
-        matrix_file,
-        output_path,
+    *,
+    genes_lengths_file=None,
+    matrix_file,
+    output_path,
 ):
     if genes_lengths_file:
         genes_df = pd.read_csv(genes_lengths_file, sep='\t')

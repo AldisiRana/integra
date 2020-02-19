@@ -16,9 +16,9 @@ def main():
 @click.option('-d', '--directory', required=True, help="The directory that contains the matrices to merge.")
 @click.option('-o', '--output-path', required=True, help="The path to output the merged matrix.")
 def merge(
-        *,
-        directory,
-        output_path
+    *,
+    directory,
+    output_path
 ):
     """This command merges all matrices in a directory into one big matrix"""
     click.echo("Starting the merging process")
@@ -35,10 +35,10 @@ def merge(
               help="The file containing the lengths of genes. If not provided it will be produced.")
 @click.option('-o', '--output-path', required=True, help="The path to output the normalized matrix.")
 def normalize(
-        *,
-        matrix_file,
-        genes_lengths_file=None,
-        output_path=None
+    *,
+    matrix_file,
+    genes_lengths_file=None,
+    output_path=None
 ):
     """This command normalizes the scoring matrix by gene length."""
     click.echo("Normalization in process.")
