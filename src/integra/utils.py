@@ -14,6 +14,13 @@ def merge_matrices(
     directory,
     output_path,
 ):
+    """
+    Merges multiple files in a directory, each file should contain the score of a gene across the samples.
+
+    :param directory: the directory that contains files to merge.
+    :param output_path: the path for the merged tsv file.
+    :return: a dataframe combining all information from files.
+    """
     full_data = pd.DataFrame(data=None, columns=['patient_id'])
     for filename in tqdm(os.listdir(directory), desc="merging matrices"):
         data = pd.read_csv(os.path.join(directory, filename), sep='\t',
@@ -30,6 +37,14 @@ def normalize_gene_len(
     matrix_file,
     output_path,
 ):
+    """
+    Normalize matrix by gene length.
+
+    :param genes_lengths_file: a file containing genes, and their start and end bps.
+    :param matrix_file: a tsv file containing a matrix of samples and their scores across genes.
+    :param output_path: the path to save the normalized matrix.
+    :return: a normalized dataframe.
+    """
     if genes_lengths_file:
         genes_df = pd.read_csv(genes_lengths_file, sep='\t')
     else:
