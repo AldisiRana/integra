@@ -74,3 +74,38 @@ def normalize_gene_len(
     if output_path:
         scores_df.to_csv(output_path, sep='\t')
     return scores_df
+
+
+def plot_scores(
+    *,
+    input_path,
+    output_path,
+    fig_size,
+    x_label,
+    y_label,
+    font_size,
+    flipped=False,
+):
+    df = pd.read_csv(input_path, sep='\t', index_col=False)
+    plt.figure(figsize=fig_size)
+    if flipped:
+        df_cp = df.set_index('patient_id')
+        flipped_df = df_cp.transpose()
+        flipped_df = flipped_df.reset_index()
+        flipped_df.rename(columns={flipped_df.columns[0]: "genes"}, inplace=True)
+        for col in tqdm(flipped_df.columns, desc='Creating scatterplot'):
+            if col == 'genes':
+                continue
+            plt.scatter(flipped_df['genes'], flipped_df[col])
+    else:
+        for col in tqdm(df.columns, desc='Creating scatterplot'):
+            if col == 'patient_id':
+                continue
+            plt.scatter(df['patient_id'], df[col])
+    plt.xlabel(x_label, {'size': '40'})
+    plt.ylabel(y_label, {'size': '40'})
+    plt.xticks(fontsize=font_size, rotation=90)
+    plt.yticks(fontsize=font_size)
+    plt.savefig(output_path)
+    plt.show()
+
