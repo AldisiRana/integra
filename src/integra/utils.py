@@ -5,9 +5,9 @@
 import os
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 from pybiomart import Dataset
+import scipy.stats as stats
 from tqdm import tqdm
 
 
@@ -59,7 +59,7 @@ def normalize_gene_len(
         row['Gene name']: round((row['Gene end (bp)'] - row['Gene start (bp)']) / 1000, 3)
         for _, row in genes_df.iterrows()
     }
-    scores_df = pd.read_csv(matrix_file, sep='\t', index_col=0)
+    scores_df = pd.read_csv(matrix_file, sep='\t')
     unnormalized = []
     for (name, data) in tqdm(scores_df.iteritems(), desc="Normalizing genes scores"):
         if name == 'patient_id':
@@ -72,7 +72,7 @@ def normalize_gene_len(
     # drop genes with unknown length
     scores_df = scores_df.drop(unnormalized, axis=1)
     if output_path:
-        scores_df.to_csv(output_path, sep='\t')
+        scores_df.to_csv(output_path, sep='\t', index=False)
     return scores_df
 
 
@@ -80,15 +80,15 @@ def plot_scores(
     *,
     input_path,
     output_path,
-    fig_size,
+    fig_size=(100, 70),
     x_label,
     y_label,
     font_size,
-    flipped=False,
+    x_axis='patient_id',
 ):
     df = pd.read_csv(input_path, sep='\t', index_col=False)
     plt.figure(figsize=fig_size)
-    if flipped:
+    if x_axis != 'patient_id':
         df_cp = df.set_index('patient_id')
         flipped_df = df_cp.transpose()
         flipped_df = flipped_df.reset_index()
@@ -109,3 +109,37 @@ def plot_scores(
     plt.savefig(output_path)
     plt.show()
 
+
+def finding_sig(
+    *,
+    scores_file,
+    genotype_file,
+    output_file,
+    genes=None,
+    cases_column,
+):
+    """
+    Calculate the significance of a gene in a population using Mann-Whitney-U test.
+    :param scores_file: a tsv file containing the scores of genes across samples.
+    :param genotype_file: a file containing the information of the sample.
+    :param output_file: a path to save the output file.
+    :param genes: a list of the genes to calculate the significance. if None will calculate for all genes.
+    :param cases_column: the name of the column containing cases and controls information.
+    :return: dataframe with genes and their p_values
+    """
+    scores_df = pd.read_csv(scores_file, sep='\t', index_col=False)
+    genotype_df = pd.read_csv(genotype_file, sep='\t', index_col=False)
+    merged_df = pd.merge(genotype_df, scores_df, on='patient_id', how='left')
+    df_by_cases = merged_df.groupby(cases_column)
+    cases = list(df_by_cases.groups.keys())
+    p_values = []
+    if genes is None:
+        genes = scores_df.columns.tolist()[1:]
+    for gene in tqdm(genes, desc='Calculating p_values for genes'):
+        case_0 = df_by_cases.get_group(cases[0])[gene].tolist()
+        case_1 = df_by_cases.get_group(cases[1])[gene].tolist()
+        u_statistic, p_val = stats.mannwhitneyu(case_0, case_1)
+        p_values.append([gene, p_val])
+    p_values_df = pd.DataFrame(p_values, columns=['genes', 'p_value']).sort_values(by=['p_value'])
+    p_values_df.to_csv(output_file, sep='\t', index=False)
+    return p_values_df
