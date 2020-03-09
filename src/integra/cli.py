@@ -4,7 +4,7 @@
 
 import click
 
-from .utils import merge_matrices, normalize_gene_len
+from .utils import merge_matrices, normalize_gene_len, find_pvalue
 
 
 @click.group()
@@ -47,6 +47,33 @@ def normalize(
         genes_lengths_file=genes_lengths_file,
         output_path=output_path,
     )
+
+
+@main.command()
+@click.option('-s', '--scores-file', required=True, help="The scoring file of genes across a population.")
+@click.option('-i', '--genotype-file', required=True, help="File containing information about the cohort.")
+@click.option('-o', '--output-file', required=True, help="The path to output the pvalues of genes.")
+@click.option('-g', '--genes',
+              help="a list containing the genes to calculate. if not provided all genes will be used.")
+@click.option('-c', '--cases-column', required=True, help="the name of the column that contains the case/control type.")
+def calculate_pval(
+    *,
+    scores_file,
+    genotype_file,
+    output_file,
+    genes,
+    cases_column,
+):
+    click.echo("The process for calculating the p_values will start now.")
+    df = find_pvalue(
+        scores_file=scores_file,
+        output_file=output_file,
+        genotype_file=genotype_file,
+        genes=genes,
+        cases_column=cases_column,
+    )
+    click.echo('Process is complete.')
+    click.echo(df.info())
 
 
 if __name__ == "__main__":

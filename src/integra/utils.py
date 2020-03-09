@@ -110,7 +110,7 @@ def plot_scores(
     plt.show()
 
 
-def finding_sig(
+def find_pvalue(
     *,
     scores_file,
     genotype_file,
