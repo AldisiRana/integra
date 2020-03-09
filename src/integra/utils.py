@@ -4,6 +4,8 @@
 
 import os
 
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from pybiomart import Dataset
 from tqdm import tqdm
@@ -27,7 +29,7 @@ def merge_matrices(
                            names=['patient_id', filename.split('_')[0], ''])
         data = data.drop(columns=[''])
         full_data = pd.merge(data, full_data, on='patient_id', how='left')
-    full_data.to_csv(output_path, sep='\t')
+    full_data.to_csv(output_path, sep='\t', index=False)
     return full_data
 
 
